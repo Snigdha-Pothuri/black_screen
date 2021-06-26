@@ -1,36 +1,20 @@
 import cv2
-import time
-import numpy as np 
-fourcc=cv2.VideoWriter_fourcc(*"XVID")
-output_file=cv2.VideoWriter("output.avi",fourcc,20.0,(640,480))
-capture=VideoCapture(0)
-time.sleep(2)
-bg=0
-for i in range(0,60):
-    ret,bg=capture.read()
-bg=np.flip(bg,axis=1)
-while (capture.isOpened()):
-  ret,img=capture.read()
-  if not ret: 
-    break
-  img=np.flip(img,axis=1)
-  hsv=cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
-  l_black=np.array([30,30,0])
+import numpy as np
+video = cv2.VideoCapture(0) 
+image = cv2.imread("121.jpg")
+while True: 
+  ret, frame = video.read() 
+  frame=cv2.resize(frame,(640,480))
+  image=cv2.resize(image,(640,480))
   u_black=np.array([104,153,70])
-  mask_1=cv2.inRange(hsv,l_black,u_black)
   l_black=np.array([30,30,0])
-  u_black=np.array([104,153,70])
-  mask_2=cv2.inRange(hsv,l_black,u_black)
-  mask_1=mask_1+mask_2
-  mask_1=cv2.morphologyEx(mask_1,cv2.MORPH_OPEN,np.ones((3,3),np.uint8))
-  mask_1=cv2.morphologyEx(mask_1,cv2.MORPH_DILATE,np.ones((3,3),np.uint8))
-  mask_2=cv2.bitwise_not(mask_1)
-  res_1=cv2.bitwise_and(img,img,mask=mask_2)
-  res_2=cv2.bitwise_and(bg,bg,mask=mask_1)
-  final_output=cv2.addWeighted(res_1,1,res_2,1,0)
-  output_file.write(final_output)
-  cv2.imshow("magic",final_output)
-  cv2.waitKey(1)
-capture.release()
-out.release()
+  mask=cv2.inRange(frame,l_black,u_black)
+  res=cv2.bitwise_and(frame,frame,mask=mask)
+  f=frame-res
+  f=np.where(f==0,image,f)
+  cv2.imshow("video", frame)
+  cv2.imshow("mask", f) 
+  if cv2.waitKey(1) & 0xFF == ord('q'):
+    break  
+video.release() 
 cv2.destroyAllWindows()
